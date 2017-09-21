@@ -49,9 +49,13 @@ module Stretcher
       bulk_action(:delete, documents, options)
     end
 
+    def bulk_create(documents, options={})
+      bulk_action(:create, documents, options)
+    end
+
     def bulk_action(action, documents, options={})
       action=action.to_sym
-      
+
       body = documents.reduce("") {|post_data, d_raw|
         d = Hashie::Mash.new(d_raw)
         index_meta = { :_id => (d[:id] || d.delete(:_id)) }
@@ -186,20 +190,20 @@ module Stretcher
     def delete_percolator_query(query_name)
       server.request(:delete, percolator_query_path(query_name))
     end
-    
+
     # Perform a raw bulk operation. You probably want to use Stretcher::Index#bulk_index
     # which properly formats a bulk index request.
     def bulk(data, options={})
       request(:post, "_bulk", options, data)
     end
-    
+
     # Takes the name, text, and completion options to craft a completion query.
     # suggest("band_complete", "a", field: :suggest)
     # Use the new completion suggest API per http://www.elasticsearch.org/guide/reference/api/search/completion-suggest/
     def suggest(name, text, completion={})
       request(:post, "_suggest", nil, {name => {:text => text, :completion => completion}})
     end
-    
+
     # Full path to this index
     def path_uri(path="/")
       p = @server.path_uri("/#{name}")
