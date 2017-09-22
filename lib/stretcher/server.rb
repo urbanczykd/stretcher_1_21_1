@@ -12,8 +12,8 @@ module Stretcher
         #builder.request :multi_json
         builder.request :json
 
-        builder.options[:timeout] = options[:read_timeout] || 30
-        builder.options[:open_timeout] = options[:open_timeout] || 2
+        builder.options[:timeout] = options[:read_timeout] || 300
+        builder.options[:open_timeout] = options[:open_timeout] || 20
 
         if faraday_configurator = options[:faraday_configurator]
           faraday_configurator.call(builder)
@@ -47,7 +47,7 @@ module Stretcher
           "[Stretcher][#{severity}]: #{msg}\n"
         end
       end
-      
+
       logger
     end
 
@@ -158,9 +158,9 @@ module Stretcher
     def mget(docs=[], arg_opts={})
       #Legacy API
       return legacy_mget(docs) if docs.is_a?(Hash)
-      
+
       opts = {:exists => true}.merge(arg_opts)
-      
+
       res = request(:get, path_uri("/_mget"), {}, {:docs => docs})[:docs]
       if opts.has_key?(:exists)
         match = opts[:exists]
@@ -169,7 +169,7 @@ module Stretcher
         res
       end
     end
-    
+
     # legacy implementation of mget for backwards compat
     def legacy_mget(body)
       request(:get, path_uri("/_mget"), {}, body)
